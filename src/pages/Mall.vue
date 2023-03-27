@@ -1,5 +1,7 @@
 <template>
-    <div >Mall界面</div>
+    <div >Mall界面
+    <form>haode</form>
+    </div>
 
 </template>
 

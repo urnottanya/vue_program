@@ -38,14 +38,16 @@
                 </el-card>
             </div>
             <el-card style="height:220px">
-                <div style="height:220px" ref="echarts"></div>
+                <div style="height:220px" ref="echarts1">
+
+                </div>
             </el-card>
             <div class="graph">
                 <el-card style="height:215px">
-                    <div style="height:215px" ref="userEcharts"></div>
+                    <div style="height:215px" ref="echarts2"></div>
                 </el-card>
                 <el-card style="height:215px">
-                    <div style="height:215px" ref="videoEcharts"></div>
+                    <div style="height:195px" ref="echarts3"></div>
                 </el-card>
             </div>
         </el-col>
@@ -54,7 +56,8 @@
 
 <script>
     import {getData} from '../../api/data.js'
-    import * as echarts from 'echarts'
+    // import {getData} from '../api'
+     import * as echarts from 'echarts'
     export default {
         name: "Home",
         data() {
@@ -147,116 +150,227 @@
             }
         },
         mounted() {
-            getData().then(res=>{
-                const {code,data}=res.data;
-                if(code === 20000){
-                    this.tableData=data.tableData;
-                    const order = data.tableData;
-                    const xData = order.date;
-                    const keyArray = Object.keys(order.data[0]);
-                    const series=[];
-                    keyArray.forEach(key=>{
-                        series.push({
-                            name: key,
-                            data:order.data.map(item => item[key]),
-                            type:'line'
-                        })
-                    });
-                    const option={
-                        xAxis:{
-                            data:xData,
-                        },
-                        yAxis:{},
-                        legend:{
-                            data:keyArray,
-                        },
-                        series
-                    };
-                    const E = echarts.init(this.$refs.echarts);
-                    E.setOption(option);
+            getData().then(({data}) =>{
+                const {tableData} = data.data;
+                console.log(data.data)
+                this.tableData = tableData
+                //基于准备好的dom，初始化echarts实例
+                 const echarts1 = echarts.init(this.$refs.echarts1)
+                //指定图标的配置项和数据
+                 var echarts1Option = {}
+                 //处理数据xAxis
+                 const {orderData,userData,videoData} = data.data
+                const xAxis = Object.keys(orderData.data[0])
+                const xAxisData = {
+                    data:xAxis
+                }
+                echarts1Option.xAxis = xAxisData
+                echarts1Option.yAxis = {}
+                echarts1Option.legend = xAxisData
+                echarts1Option.series = []
+                xAxis.forEach(key => {
+                    echarts1Option.series.push({
+                        name: key,
+                        data:orderData.data.map(item => item[key]),
+                        type: 'line'
+                    })
+                })
+                console.log(echarts1Option)
+                // 使用刚指定的配置项和数据显示图表
+                echarts1.setOption(echarts1Option)
 
-                    //用户图
-                    const userOption= {
-                        legend: {
-                            // 图例文字颜色
-                            textStyle: {
-                                color: "#333",
-                            },
-                        },
-                        grid: {
-                            left: "20%",
-                        },
-                        // 提示框
-                        tooltip: {
-                            trigger: "axis",
-                        },
-                        xAxis: {
-                            type: "category", // 类目轴
-                                data: data.userData.map(item=>item.date),
-                                axisLine: {
-                                lineStyle: {
-                                    color: "#17b3a3",
+                //柱状图
+                const  echarts2 = echarts.init(this.$refs.echarts2)
+                const echarts2Option = {
+                            legend: {
+                                // 图例文字颜色
+                                textStyle: {
+                                    color: "#333",
                                 },
                             },
-                            axisLabel: {
-                                interval: 0,
-                                    color: "#333",
+                            grid: {
+                                left: "20%",
                             },
-                        },
-                        yAxis: [
-                            {
-                                type: "value",
-                                axisLine: {
+                            // 提示框
+                            tooltip: {
+                                trigger: "axis",
+                            },
+                            xAxis: {
+                                type: "category", // 类目轴
+                                    data: userData.map(item=>item.date),
+                                    axisLine: {
                                     lineStyle: {
                                         color: "#17b3a3",
                                     },
                                 },
-                            },
-                        ],
-                            color: ["#2ec7c9", "#b6a2de"],
-                            series: [
-                                {
-                                    name:'新增用户',
-                                    data:data.userData.map(item=>item.new),
-                                    type:'bar'
+                                axisLabel: {
+                                    interval: 0,
+                                        color: "#333",
                                 },
+                            },
+                            yAxis: [
                                 {
-                                    name:'活跃用户',
-                                    data:data.userData.map(item=>item.active),
-                                    type:'bar'
-                                }
+                                    type: "value",
+                                    axisLine: {
+                                        lineStyle: {
+                                            color: "#17b3a3",
+                                        },
+                                    },
+                                },
                             ],
-                    };
-                    const U = echarts.init(this.$refs.userEcharts);
-                    U.setOption(userOption);
-
-                    //饼图
-                    const videoOption={
-                        tooltip: {
-                            trigger: "item",
-                        },
-                        color: [
-                            "#0f78f4",
-                            "#dd536b",
-                            "#9462e5",
-                            "#a6a6a6",
-                            "#e1bb22",
-                            "#39c362",
-                            "#3ed1cf",
-                        ],
-                        series: [
-                            {
-                                data: data.videoData,
-                                type:'pie'
-                            }
-                        ],
-                    }
-                    const V = echarts.init(this.$refs.videoEcharts);
-                    V.setOption(videoOption);
+                                color: ["#2ec7c9", "#b6a2de"],
+                                series: [
+                                    {
+                                        name:'新增用户',
+                                        data:userData.map(item=>item.new),
+                                        type:'bar'
+                                    },
+                                    {
+                                        name:'活跃用户',
+                                        data:userData.map(item=>item.active),
+                                        type:'bar'
+                                    }
+                                ],
 
                 }
-                console.log(res);
+                echarts2.setOption(echarts2Option)
+
+                //饼状图
+                const echarts3 = echarts.init(this.$refs.echarts3)
+                const echarts3Option={
+                    tooltip: {
+                        trigger: "item",
+                    },
+                    color: [
+                        "#0f78f4",
+                        "#dd536b",
+                        "#9462e5",
+                        "#a6a6a6",
+                        "#e1bb22",
+                        "#39c362",
+                        "#3ed1cf",
+                    ],
+                    series: [
+                        {
+                            data: videoData,
+                            type:'pie'
+                        }
+                    ],
+                }
+                echarts3.setOption(echarts3Option)
             })
+            // getData().then(res=>{
+            //     const {code,data}=res.data;
+            //     if(code === 20000){
+            //         // this.tableData = tableData;
+            //         this.tableData=data.tableData;
+            //         const order = data.tableData;
+            //         //处理x轴数据
+            //         const xData = order.date;
+            //         const keyArray = Object.keys(order.data[0]);
+            //         const series=[];
+            //         keyArray.forEach(key=>{
+            //             series.push({
+            //                 name: key,
+            //                 data:order.data.map(item => item[key]),
+            //                 type:'line'
+            //             })
+            //         });
+            //         const option={
+            //             xAxis:{
+            //                 data:xData,
+            //             },
+            //             yAxis:{},
+            //             legend:{
+            //                 data:keyArray,
+            //             },
+            //             series
+            //         };
+            //         const E = echarts.init(this.$refs.echarts);
+            //         E.setOption(option);
+            //
+            //         //用户图
+            //         const userOption= {
+            //             legend: {
+            //                 // 图例文字颜色
+            //                 textStyle: {
+            //                     color: "#333",
+            //                 },
+            //             },
+            //             grid: {
+            //                 left: "20%",
+            //             },
+            //             // 提示框
+            //             tooltip: {
+            //                 trigger: "axis",
+            //             },
+            //             xAxis: {
+            //                 type: "category", // 类目轴
+            //                     data: data.userData.map(item=>item.date),
+            //                     axisLine: {
+            //                     lineStyle: {
+            //                         color: "#17b3a3",
+            //                     },
+            //                 },
+            //                 axisLabel: {
+            //                     interval: 0,
+            //                         color: "#333",
+            //                 },
+            //             },
+            //             yAxis: [
+            //                 {
+            //                     type: "value",
+            //                     axisLine: {
+            //                         lineStyle: {
+            //                             color: "#17b3a3",
+            //                         },
+            //                     },
+            //                 },
+            //             ],
+            //                 color: ["#2ec7c9", "#b6a2de"],
+            //                 series: [
+            //                     {
+            //                         name:'新增用户',
+            //                         data:data.userData.map(item=>item.new),
+            //                         type:'bar'
+            //                     },
+            //                     {
+            //                         name:'活跃用户',
+            //                         data:data.userData.map(item=>item.active),
+            //                         type:'bar'
+            //                     }
+            //                 ],
+            //         };
+            //         const U = echarts.init(this.$refs.userEcharts);
+            //         U.setOption(userOption);
+            //
+            //         //饼图
+            //         const videoOption={
+            //             tooltip: {
+            //                 trigger: "item",
+            //             },
+            //             color: [
+            //                 "#0f78f4",
+            //                 "#dd536b",
+            //                 "#9462e5",
+            //                 "#a6a6a6",
+            //                 "#e1bb22",
+            //                 "#39c362",
+            //                 "#3ed1cf",
+            //             ],
+            //             series: [
+            //                 {
+            //                     data: data.videoData,
+            //                     type:'pie'
+            //                 }
+            //             ],
+            //         }
+            //         const V = echarts.init(this.$refs.videoEcharts);
+            //         V.setOption(videoOption);
+            //
+            //     }
+            //     console.log(res);
+            // })
         }
     }
 </script>

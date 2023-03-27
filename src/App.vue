@@ -1,8 +1,8 @@
 <template>
   <div id="app">
 
-
-      <router-link to="/Main" active-class="true"></router-link>
+<!--    <Main/>-->
+      <router-link to="pages/Home" active-class="true"></router-link>
       <router-view></router-view>
 <!--      <Main/>-->
   </div>
