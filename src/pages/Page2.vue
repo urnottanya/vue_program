@@ -1,5 +1,6 @@
 <template>
-    <div >P2界面</div>
+    <div ><h1>P2界面</h1></div>
+
 
 </template>
 
